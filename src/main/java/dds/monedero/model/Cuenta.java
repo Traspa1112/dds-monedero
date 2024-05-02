@@ -59,8 +59,12 @@ public class Cuenta {
     new Movimiento(LocalDate.now(), cuanto, false).agregateA(this);
   }
 
-  public void agregarMovimiento(LocalDate fecha, double cuanto, boolean esDeposito) {
-    Movimiento movimiento = new Movimiento(fecha, cuanto, esDeposito);
+  public void agregarMovimiento(Movimiento movimiento) {
+    /* Code Smell: Long Parameter List. En vez de pasarle los parámetros para armar el movimiento
+     en este método, podemos recibir directamente el objeto instanciado. Esto nos da flexibilidad
+      ya que si el constructor de movimiento cambia, no lo tendríamos que modificar acá
+    * Movimiento movimiento = new Movimiento(fecha, cuanto, esDeposito);
+    * */
     movimientos.add(movimiento);
   }
 
@@ -90,7 +94,8 @@ public class Cuenta {
   // Code smell: Feature Envy El método `confirmarMovimiento` reemplaza a `agregateA(Cuenta
   // cuenta)` y `calcularValor (Cuenta cuenta)` de la clase Movimiento
   public void confirmarMovimiento(double monto, boolean esDeposito) {
-    this.agregarMovimiento(LocalDate.now(), monto, esDeposito);
+    Movimiento movimiento = new Movimiento(LocalDate.now(), monto, esDeposito);
+    this.agregarMovimiento(movimiento);
     this.saldo += monto * this.signoEsDeposito(esDeposito);
   }
 }
