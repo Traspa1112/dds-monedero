@@ -44,6 +44,7 @@ public class Movimiento {
     return !esDeposito;
   }
 
+  /* Code smell: Feature Envy. Es responsabilidad de la Cuenta
   public void agregateA(Cuenta cuenta) {
     cuenta.setSaldo(calcularValor(cuenta));
     cuenta.agregarMovimiento(fecha, monto, esDeposito);
@@ -55,5 +56,5 @@ public class Movimiento {
     } else {
       return cuenta.getSaldo() - this.monto; // No usar el getter para acceder a un atributo de la misma clase
     }
-  }
+  }*/
 }

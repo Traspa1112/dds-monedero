@@ -83,4 +83,14 @@ public class Cuenta {
     this.saldo = saldo;
   }
 
+  public int signoEsDeposito(boolean esDeposito) {
+    return esDeposito ? 1 : -1;
+  }
+
+  // Code smell: Feature Envy El método `confirmarMovimiento` reemplaza a `agregateA(Cuenta
+  // cuenta)` y `calcularValor (Cuenta cuenta)` de la clase Movimiento
+  public void confirmarMovimiento(double monto, boolean esDeposito) {
+    this.agregarMovimiento(LocalDate.now(), monto, esDeposito);
+    this.saldo += monto * this.signoEsDeposito(esDeposito);
+  }
 }
