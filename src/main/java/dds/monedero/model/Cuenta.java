@@ -15,16 +15,20 @@ public class Cuenta {
   private List<Movimiento> movimientos = new ArrayList<>();
 
   public Cuenta() {
-    saldo = 0;
+    /* Code smell: Duplicated code. Es redundante decir que el saldo va a estar en 0 si al momento de definir el atributo dijimos eso
+    saldo = 0;*/
   }
 
-  public Cuenta(double montoInicial) {
+  public Cuenta(double montoInicial, List<Movimiento> movimientos) {
     saldo = montoInicial;
-  }
-
-  public void setMovimientos(List<Movimiento> movimientos) {
     this.movimientos = movimientos;
   }
+
+  /* Podría estar directamente en el constructor ya que para agregar movimientos lo hacemos con
+  el método `agregarMovimiento`
+  public void setMovimientos(List<Movimiento> movimientos) {
+    this.movimientos = movimientos;
+  }*/
 
   public void poner(double cuanto) {
     if (cuanto <= 0) {
