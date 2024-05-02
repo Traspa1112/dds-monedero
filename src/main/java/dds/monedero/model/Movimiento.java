@@ -51,9 +51,9 @@ public class Movimiento {
 
   public double calcularValor(Cuenta cuenta) {
     if (esDeposito) {
-      return cuenta.getSaldo() + getMonto();
+      return cuenta.getSaldo() + this.monto; // No usar el getter para acceder a un atributo de la misma clase
     } else {
-      return cuenta.getSaldo() - getMonto();
+      return cuenta.getSaldo() - this.monto; // No usar el getter para acceder a un atributo de la misma clase
     }
   }
 }
