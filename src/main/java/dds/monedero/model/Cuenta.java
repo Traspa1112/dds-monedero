@@ -36,6 +36,8 @@ public class Cuenta {
     return this.movimientos.stream().filter(movimiento -> movimiento.fueDepositado(fechaDeposito));
   }
 
+  // Creo que este es un Code Smell: Duplicated code con el método `sacar`, pero no sabría cómo
+  // resolverlo
   public void poner(double cuanto) {
     int cantidadDepositosDiarios = 3;
     if (cuanto <= 0) {
