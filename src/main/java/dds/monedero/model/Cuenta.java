@@ -52,6 +52,12 @@ public class Cuenta {
     this.agregarMovimiento(new Movimiento(LocalDate.now(), cuanto, true));
   }
 
+  double limiteDiario = 1000;
+
+  public double limiteDiarioRestante() {
+    return limiteDiario - getMontoExtraidoA(LocalDate.now());
+  }
+
   public void sacar(double cuanto) {
     if (cuanto <= 0) {
       throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
@@ -61,12 +67,15 @@ public class Cuenta {
       throw new SaldoMenorException("No puede sacar mas de " + this.saldo + " $");
     }
 
+    /* Code Smell: Temporary field. No es necesario guardar el limite siendo que calcularlo no es
+     tan costoso
     double montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
     double limite = 1000 - montoExtraidoHoy;
+    */
 
-    if (cuanto > limite) {
-      throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + 1000
-          + " diarios, límite: " + limite);
+    if (cuanto > limiteDiarioRestante()) {
+      throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + limiteDiario
+          + " diarios, límite: " + limiteDiarioRestante());
     }
 
     this.agregarMovimiento(new Movimiento(LocalDate.now(), cuanto, false));
