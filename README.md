@@ -1,5 +1,10 @@
 ## Monedero
 
+## Aclaración
+```diff
+- Soy consciente que al dejar el código comentado estoy generando un Code Smell, pero se me hace que es más fácil para ustedes al momento de leer mi justificación.
+```
+
 ### Contexto
 
 Este repositorio contiene el código de un _monedero virtual_, al que podemos agregarle y quitarle dinero, a través 
