@@ -51,7 +51,7 @@ public class Cuenta {
       throw new MaximaCantidadDepositosException("Ya excedio los " + cantidadDepositosDiarios + " depositos diarios");
     }
 
-    this.agregarMovimiento(new Movimiento(LocalDate.now(), cuanto, true));
+    confirmarMovimiento(new Movimiento(LocalDate.now(), cuanto, true));
   }
 
   double limiteDiario = 1000;
@@ -80,16 +80,7 @@ public class Cuenta {
           + " diarios, límite: " + limiteDiarioRestante());
     }
 
-    this.agregarMovimiento(new Movimiento(LocalDate.now(), cuanto, false));
-  }
-
-  public void agregarMovimiento(Movimiento movimiento) {
-    /* Code Smell: Long Parameter List. En vez de pasarle los parámetros para armar el movimiento
-      en este método, podemos recibir directamente el objeto instanciado. Esto nos da flexibilidad
-      ya que si el constructor de movimiento cambia, no lo tendríamos que modificar acá
-      Movimiento movimiento = new Movimiento(fecha, cuanto, esDeposito);
-    * */
-    movimientos.add(movimiento);
+    confirmarMovimiento(new Movimiento(LocalDate.now(), cuanto, false));
   }
 
   public Stream<Movimiento> movimientosExtraidosEn(LocalDate fechaExtraccion) {
@@ -123,9 +114,13 @@ public class Cuenta {
 
   // Code smell: Feature Envy El método `confirmarMovimiento` reemplaza a `agregateA(Cuenta
   // cuenta)` y `calcularValor (Cuenta cuenta)` de la clase Movimiento
-  public void confirmarMovimiento(double monto, boolean esDeposito) {
-    Movimiento movimiento = new Movimiento(LocalDate.now(), monto, esDeposito);
-    this.agregarMovimiento(movimiento);
-    this.saldo += monto * this.signoEsDeposito(esDeposito);
+  public void confirmarMovimiento(Movimiento movimiento) {
+    /* Code Smell: Long Parameter List. En vez de pasarle los parámetros para armar el movimiento
+      en este método, podemos recibir directamente el objeto instanciado. Esto nos da flexibilidad
+      ya que si el constructor de movimiento cambia, no lo tendríamos que modificar acá
+      Movimiento movimiento = new Movimiento(fecha, cuanto, esDeposito);
+    */
+    movimientos.add(movimiento);
+    this.saldo += movimiento.getMonto() * this.signoEsDeposito(movimiento.isDeposito());
   }
 }
