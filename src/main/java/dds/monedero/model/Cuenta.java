@@ -8,6 +8,7 @@ import dds.monedero.exceptions.SaldoMenorException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Cuenta {
 
@@ -15,7 +16,8 @@ public class Cuenta {
   private List<Movimiento> movimientos = new ArrayList<>();
 
   public Cuenta() {
-    /* Code smell: Duplicated code. Es redundante decir que el saldo va a estar en 0 si al momento de definir el atributo dijimos eso
+    /* Code smell: Duplicated code. Es redundante decir que el saldo va a estar en 0 si al
+    momento de definir el atributo dijimos eso
     saldo = 0;*/
   }
 
@@ -30,47 +32,64 @@ public class Cuenta {
     this.movimientos = movimientos;
   }*/
 
+  public Stream<Movimiento> movimientosDepositadosEn(LocalDate fechaDeposito) {
+    return this.movimientos.stream().filter(movimiento -> movimiento.fueDepositado(fechaDeposito));
+  }
+
   public void poner(double cuanto) {
+    int cantidadDepositosDiarios = 3;
     if (cuanto <= 0) {
       throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
     }
 
-    // No usar el getter para acceder a un atributo de la misma clase
-    if (this.movimientos.stream().filter(movimiento -> movimiento.isDeposito()).count() >= 3) {
-      throw new MaximaCantidadDepositosException("Ya excedio los " + 3 + " depositos diarios");
+    // Code Smell: Long Method. Abstraemos el código que filtra si los movimientos fueron
+    // depositados al método movimientosDepositadosEn para permitir la reutilización del mismo.
+    // Por otra parte resolvemos el code smell de Message Chains
+    if (movimientosDepositadosEn(LocalDate.now()).count() >= cantidadDepositosDiarios) {
+      throw new MaximaCantidadDepositosException("Ya excedio los " + cantidadDepositosDiarios + " depositos diarios");
     }
 
-    new Movimiento(LocalDate.now(), cuanto, true).agregateA(this);
+    this.agregarMovimiento(new Movimiento(LocalDate.now(), cuanto, true));
   }
 
   public void sacar(double cuanto) {
     if (cuanto <= 0) {
       throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
     }
+
     if (this.saldo - cuanto < 0) { // No usar el getter para acceder a un atributo de la misma clase
       throw new SaldoMenorException("No puede sacar mas de " + this.saldo + " $");
     }
+
     double montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
     double limite = 1000 - montoExtraidoHoy;
+
     if (cuanto > limite) {
       throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + 1000
           + " diarios, límite: " + limite);
     }
-    new Movimiento(LocalDate.now(), cuanto, false).agregateA(this);
+
+    this.agregarMovimiento(new Movimiento(LocalDate.now(), cuanto, false));
   }
 
   public void agregarMovimiento(Movimiento movimiento) {
     /* Code Smell: Long Parameter List. En vez de pasarle los parámetros para armar el movimiento
-     en este método, podemos recibir directamente el objeto instanciado. Esto nos da flexibilidad
+      en este método, podemos recibir directamente el objeto instanciado. Esto nos da flexibilidad
       ya que si el constructor de movimiento cambia, no lo tendríamos que modificar acá
-    * Movimiento movimiento = new Movimiento(fecha, cuanto, esDeposito);
+      Movimiento movimiento = new Movimiento(fecha, cuanto, esDeposito);
     * */
     movimientos.add(movimiento);
   }
 
+  public Stream<Movimiento> movimientosExtraidosEn(LocalDate fechaExtraccion) {
+    return this.movimientos.stream().filter(movimiento -> movimiento.fueExtraido(fechaExtraccion));
+  }
+
   public double getMontoExtraidoA(LocalDate fecha) {
-    return this.movimientos.stream() // No usar el getter para acceder a un atributo de la misma clase
-        .filter(movimiento -> !movimiento.isDeposito() && movimiento.getFecha().equals(fecha))
+    // Code Smell: Long Method. Abstraemos el código que filtra si los movimientos fueron
+    // extraídos al método movimientosExtraidosEn para permitir la reutilización del mismo.
+    // Por otra parte resolvemos el code smell de Message Chains
+    return movimientosExtraidosEn(LocalDate.now())
         .mapToDouble(Movimiento::getMonto)
         .sum();
   }
